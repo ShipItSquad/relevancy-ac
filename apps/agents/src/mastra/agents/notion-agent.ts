@@ -1,25 +1,37 @@
-import { Agent } from '@mastra/core/agent';
-import { Memory } from '@mastra/memory';
-import { LibSQLStore } from '@mastra/libsql';
-import { MCPClient } from '@mastra/mcp';
-import {config} from "dotenv"
+import { Agent } from "@mastra/core/agent";
+import { Memory } from "@mastra/memory";
+import { LibSQLStore } from "@mastra/libsql";
+import { MCPClient } from "@mastra/mcp";
+import path from "node:path";
+import { createRequire } from "node:module";
+import { config } from "dotenv";
 
-config()
+config();
+
+const require = createRequire(import.meta.url);
+const notionMcpCli = path.join(
+	path.dirname(require.resolve("@notionhq/notion-mcp-server/package.json")),
+	"bin/cli.mjs",
+);
+
 const NOTION_API_KEY = process.env.NOTION_API_KEY!;
 const NOTION_VERSION = process.env.NOTION_VERSION!;
-const OPENAPI_MCP_HEADERS = `{\"Authorization\": \"Bearer ${NOTION_API_KEY}\", \"Notion-Version\": \"${NOTION_VERSION}\" }`;
+const OPENAPI_MCP_HEADERS = JSON.stringify({
+	Authorization: `Bearer ${NOTION_API_KEY}`,
+	"Notion-Version": NOTION_VERSION,
+});
 // Initialize MCP Client to connect to Notion MCP server
 const notionMcp = new MCPClient({
-  id: 'notion-mcp-client',
-  servers: {
-    notion: {
-      command: 'npx',
-      args: ['-y', '@notionhq/notion-mcp-server'],
-      env: {
-        "OPENAPI_MCP_HEADERS": OPENAPI_MCP_HEADERS
-      },
-    },
-  },
+	id: "notion-mcp-client",
+	servers: {
+		notion: {
+			command: process.execPath,
+			args: [notionMcpCli],
+			env: {
+				OPENAPI_MCP_HEADERS,
+			},
+		},
+	},
 });
 
 export async function createNotionAgent() {
