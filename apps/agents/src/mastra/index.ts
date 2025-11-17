@@ -11,7 +11,9 @@ import {
 
 export const mastra = new Mastra({
 	workflows: {},
-	agents: { notionAgent },
+	agents: {
+		...(notionAgent ? { notionAgent } : {}),
+	},
 	scorers: {
 		toolCallAppropriatenessScorer,
 		completenessScorer,
@@ -40,9 +42,6 @@ export const mastra = new Mastra({
 		}),
 	},
 	bundler: {
-		externals: [
-			"@libsql/linux-x64-gnu", // + any other libsql targets you might need
-			"@mastra/auth",
-		],
+		externals: ["@mastra/auth"],
 	},
 });

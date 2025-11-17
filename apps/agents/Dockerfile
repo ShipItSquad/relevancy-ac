@@ -26,11 +26,8 @@ RUN bun install --frozen-lockfile --production
 FROM base AS runner
 WORKDIR /app
 ENV NODE_ENV=production
-ENV OPENAI_API_KEY=${OPENAI_API_KEY}
-ENV NOTION_API_KEY=${NOTION_API_KEY}
-ENV NOTION_VERSION=${NOTION_VERSION}
-ENV EXA_API_KEY=${EXA_API_KEY}
-ENV MASTRA_JWT_SECRET=${MASTRA_JWT_SECRET}
+# Bind to all interfaces and set a sane default port; allow platform overrides at runtime
+ENV HOST=0.0.0.0
 ENV PORT=8080
 
 COPY --from=prod-deps /app/node_modules ./node_modules
