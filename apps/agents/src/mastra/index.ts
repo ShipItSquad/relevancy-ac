@@ -35,7 +35,7 @@ export const mastra = new Mastra({
 		default: { enabled: true },
 	},
 	deployer: new VercelDeployer({
-		maxDuration: 600,
+		maxDuration: 299,
 		memory: 1536,
 	}),
 	server: {
