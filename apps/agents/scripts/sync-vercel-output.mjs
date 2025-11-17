@@ -1,4 +1,4 @@
-import { cpSync, existsSync, mkdirSync, readdirSync, rmSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readdirSync, rmSync, readFileSync } from "node:fs";
 import path from "node:path";
 
 const projectRoot = process.cwd();
@@ -31,9 +31,9 @@ if (!outputReady) {
 	process.exit(1);
 }
 
-ensureAdditionalNodeModules();
+ensureAdditionalNodeModules(readExtraModulesConfig());
 
-function ensureAdditionalNodeModules() {
+function ensureAdditionalNodeModules(extraModules) {
 	const functionsDir = path.join(dest, "functions");
 	if (!existsSync(functionsDir)) {
 		return;
@@ -46,14 +46,6 @@ function ensureAdditionalNodeModules() {
 	if (functionDirs.length === 0) {
 		return;
 	}
-
-	const extraModules = [
-		{
-			label: "@notionhq/notion-mcp-server",
-			source: path.join(projectRoot, "node_modules", "@notionhq", "notion-mcp-server"),
-			relativeDest: path.join("@notionhq", "notion-mcp-server"),
-		},
-	];
 
 	for (const funcDir of functionDirs) {
 		const funcNodeModules = path.join(funcDir, "node_modules");
@@ -69,5 +61,25 @@ function ensureAdditionalNodeModules() {
 			cpSync(mod.source, destModulePath, { recursive: true });
 			console.log(`Ensured ${mod.label} is available in ${funcDir}.`);
 		}
+	}
+}
+
+function readExtraModulesConfig() {
+	const configPath = path.join(projectRoot, "vercel-extra-modules.json");
+	if (!existsSync(configPath)) {
+		return [];
+	}
+
+	try {
+		const parsed = JSON.parse(readFileSync(configPath, "utf8"));
+		const entries = Array.isArray(parsed.modules) ? parsed.modules : [];
+		return entries.map((entry) => ({
+			label: entry.label ?? entry.source ?? entry.module,
+			source: path.join(projectRoot, "node_modules", entry.path ?? entry.source ?? entry.module),
+			relativeDest: entry.relativeDest ?? entry.dest ?? entry.module ?? entry.path,
+		}));
+	} catch (error) {
+		console.warn("Failed to parse vercel-extra-modules.json:", error);
+		return [];
 	}
 }
