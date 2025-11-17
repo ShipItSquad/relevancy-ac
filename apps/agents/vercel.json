@@ -1,6 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "version": 3,
+  "framework": null,
   "installCommand": "bun install --frozen-lockfile",
-  "buildCommand": "bunx turbo run build --filter=agents",
+  "buildCommand": "bun run vercel:build",
+  "devCommand": "bun run dev",
   "outputDirectory": ".vercel/output"
 }

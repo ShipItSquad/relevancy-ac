@@ -38,30 +38,63 @@ export function useScreenSize(): ScreenInfo {
 			// Reasonable SSR defaults; width/height won't be used until hydrated
 			return { size: "md", width: 1024, height: 768 };
 		}
+		const vv =
+			"visualViewport" in window
+				? (window as Window & { visualViewport?: VisualViewport })
+						.visualViewport
+				: undefined;
+		const currentWidth = vv?.width ?? window.innerWidth;
+		const currentHeight = vv?.height ?? window.innerHeight;
 		return {
-			size: getScreenSize(window.innerWidth),
-			width: window.innerWidth,
-			height: window.innerHeight,
+			size: getScreenSize(currentWidth),
+			width: currentWidth,
+			height: currentHeight,
 		};
 	};
 
 	const [screen, setScreen] = useState<ScreenInfo>(getInitial);
 
 	useEffect(() => {
-		function handleResize() {
+		const visualViewport: VisualViewport | null =
+			"visualViewport" in window
+				? ((window as Window & { visualViewport?: VisualViewport })
+						.visualViewport ?? null)
+				: null;
+
+		function updateFromViewport() {
+			const width =
+				visualViewport?.width ??
+				window.innerWidth ??
+				document.documentElement.clientWidth;
+			const height =
+				visualViewport?.height ??
+				window.innerHeight ??
+				document.documentElement.clientHeight;
 			setScreen({
-				size: getScreenSize(window.innerWidth),
-				width: window.innerWidth,
-				height: window.innerHeight,
+				size: getScreenSize(width),
+				width,
+				height,
 			});
 		}
 
-		window.addEventListener("resize", handleResize);
-		// Call handler so state gets updated with initial value
-		handleResize();
+		// Window-level changes (orientation, resize)
+		window.addEventListener("resize", updateFromViewport);
+		window.addEventListener("orientationchange", updateFromViewport);
+		// VisualViewport captures mobile URL bar show/hide, keyboard, pinch-zoom viewport changes
+		if (visualViewport) {
+			visualViewport.addEventListener("resize", updateFromViewport);
+			visualViewport.addEventListener("scroll", updateFromViewport);
+		}
+		// Initialize on mount
+		updateFromViewport();
 
 		return () => {
-			window.removeEventListener("resize", handleResize);
+			window.removeEventListener("resize", updateFromViewport);
+			window.removeEventListener("orientationchange", updateFromViewport);
+			if (visualViewport) {
+				visualViewport.removeEventListener("resize", updateFromViewport);
+				visualViewport.removeEventListener("scroll", updateFromViewport);
+			}
 		};
 	}, []);
 

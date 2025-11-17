@@ -19,7 +19,7 @@ export const Unicorn = ({
 			)}
 			<UnicornScene
 				className="fade-in animation-duration-[2000ms] absolute top-0 left-0 h-screen w-screen animate-in"
-				dpi={3}
+				dpi={1}
 				height={height}
 				lazyLoad={false}
 				onLoad={() => setLoaded(true)}
