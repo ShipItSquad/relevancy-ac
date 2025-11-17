@@ -3,6 +3,7 @@ import { LibSQLStore } from "@mastra/libsql";
 import { MCPClient } from "@mastra/mcp";
 import { Memory } from "@mastra/memory";
 import { config } from "dotenv";
+import { createRequire } from "module";
 
 config();
 function requireEnv(name: string): string {
@@ -13,17 +14,18 @@ function requireEnv(name: string): string {
 	return value;
 }
 
+const localRequire = createRequire(import.meta.url);
 const NOTION_API_KEY = requireEnv("NOTION_API_KEY");
 const NOTION_VERSION = requireEnv("NOTION_VERSION");
-console.log(NOTION_API_KEY, NOTION_VERSION);
 const OPENAPI_MCP_HEADERS = `{"Authorization": "Bearer ${NOTION_API_KEY}", "Notion-Version": "${NOTION_VERSION}" }`;
+const NOTION_MCP_BIN = localRequire.resolve("@notionhq/notion-mcp-server/bin/cli.mjs");
 // Initialize MCP Client to connect to Notion MCP server
 const notionMcp = new MCPClient({
 	id: "notion-mcp-client",
 	servers: {
 		notion: {
-			command: "npx",
-			args: ["-y", "@notionhq/notion-mcp-server"],
+			command: process.execPath,
+			args: [NOTION_MCP_BIN],
 			env: {
 				OPENAPI_MCP_HEADERS,
 			},
