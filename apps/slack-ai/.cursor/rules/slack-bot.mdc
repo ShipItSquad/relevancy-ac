@@ -1,0 +1,106 @@
+---
+alwaysApply: true
+---
+
+## Slack bot (global) rules
+
+- Edit only under `server/**`; never touch `dist/**`.
+- Do not modify `server/app.ts` or `server/api/slack/events.post.ts` unless explicitly requested.
+- Keep `server/listeners/index.ts` as the central registry that calls each category module's `register(app)`.
+- Target TypeScript only; avoid cross-imports from `dist/**`.
+- All code must be type-safe. Validate this by running `tsx` or the project's TypeScript build (`tsc --noEmit` or build script) locally and in CI.
+- Always check and reference Slack Bolt type definitions in `./node_modules/@slack/bolt/dist/types/` when selecting types for handlers and shared utilities.
+- Prefer early `ack()` for `command`, `action`, `shortcut`, and `view` handlers.
+- Wrap I/O in `try/catch` and log errors via `logger.error(error)`.
+- File names use kebab-case, e.g. `feature-kind.ts`.
+- Preserve existing exports and append new registrations without breaking others.
+- Keep `manifest.json` up to date with any added/changed Slack features. Before adding slash commands, shortcuts, events, or interactivity URLs, check what already exists and update those entries instead of duplicating common definitions.
+
+### Directory structure
+
+- `server/listeners/actions/`
+- `server/listeners/commands/`
+- `server/listeners/events/`
+- `server/listeners/messages/`
+- `server/listeners/shortcuts/`
+- `server/listeners/views/`
+- `server/lib/slack/`
+
+Additionally, a `server/lib/slack/` directory hosts reusable Slack-related utilities and tools (e.g., blocks, helpers). Files in `server/lib/slack/` must not register listeners directly.
+
+Each category has an `index.ts` with the shape:
+
+```ts
+import type { App } from "@slack/bolt";
+
+const register = (app: App) => {
+  // app.<kind>(...)
+};
+
+export default { register };
+```
+
+### Registration invariants
+
+- `server/listeners/index.ts` must import each category and call `register(app)` exactly once per category.
+- Category `index.ts` files only import sibling handler files in the same directory.
+- Handlers export a single default callback; categories import those defaults.
+
+### Handler guardrails
+
+- Use specific Slack Bolt types: `SlackCommandMiddlewareArgs`, `SlackActionMiddlewareArgs`, `SlackEventMiddlewareArgs<...>`, `SlackShortcutMiddlewareArgs`, `SlackViewMiddlewareArgs`.
+- Acknowledge (`ack()`) before any lengthy or networked work (where applicable).
+- Avoid deep nesting; prefer small helper functions when logic grows.
+
+### Safety
+
+- Never introduce implicit auto-discovery/globbing in this repo; keep the explicit registry pattern.
+- Do not change environment variable names or receiver wiring.
+
+### Quick checklists
+
+- Add a command:
+
+  1. Create `server/listeners/commands/<name>-command.ts` with default-exported callback.
+  2. Update `server/listeners/commands/index.ts` to register `app.command("/<name>", <callback>)`.
+
+- Add an action:
+
+  1. Create `server/listeners/actions/<name>-action.ts`.
+  2. Update `server/listeners/actions/index.ts` to register `app.action("<action_id>", <callback>)`.
+
+- Add an event:
+
+  1. Create `server/listeners/events/<name>.ts`.
+  2. Update `server/listeners/events/index.ts` to register `app.event("<event>", <callback>)`.
+
+- Add a message handler:
+
+  1. Create `server/listeners/messages/<name>-message.ts`.
+  2. Update `server/listeners/messages/index.ts` to register `app.message(<string|RegExp>, <callback>)`.
+
+- Add a shortcut:
+
+  1. Create `server/listeners/shortcuts/<name>-shortcut.ts`.
+  2. Update `server/listeners/shortcuts/index.ts` to register `app.shortcut("<callback_id>", <callback>)`.
+
+- Add a view handler:
+  1. Create `server/listeners/views/<name>-view.ts`.
+  2. Update `server/listeners/views/index.ts` to register `app.view("<callback_id>", <callback>)`.
+
+### Category rules linking
+
+- Complementary rules auto-apply by directory via:
+  - `server/listeners/commands/**/*.ts`
+  - `server/listeners/actions/**/*.ts`
+  - `server/listeners/events/**/*.ts`
+  - `server/listeners/messages/**/*.ts`
+  - `server/listeners/shortcuts/**/*.ts`
+  - `server/listeners/views/**/*.ts`
+  - `server/lib/slack/**/*.ts`
+
+## tools
+
+you have access to context7 tools to help you dig into documentation use it when needed.
+
+use @slack/bolt documentation to help you understand the code and the context.

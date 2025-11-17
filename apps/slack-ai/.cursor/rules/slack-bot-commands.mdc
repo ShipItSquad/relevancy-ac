@@ -1,0 +1,44 @@
+---
+alwaysApply: false
+globs: server/listeners/commands/**/*.ts
+---
+
+## Commands rules
+
+- Only modify files within `server/listeners/commands/`.
+- Keep the explicit registry pattern.
+
+### `index.ts` contract
+
+```ts
+import type { App } from "@slack/bolt";
+import <name>CommandCallback from "./<name>-command"; // update per command file
+
+const register = (app: App) => {
+  app.command("/<name>", <name>CommandCallback);
+};
+
+export default { register };
+```
+
+### Handler template
+
+```ts
+import type { AllMiddlewareArgs, SlackCommandMiddlewareArgs } from "@slack/bolt";
+
+const <name>CommandCallback = async ({ ack, respond, logger }: AllMiddlewareArgs & SlackCommandMiddlewareArgs) => {
+  try {
+    await ack();
+    await respond("<success message>");
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+export default <name>CommandCallback;
+```
+
+### Checklist
+
+1. Create `server/listeners/commands/<name>-command.ts` with default-exported callback.
+2. Update `server/listeners/commands/index.ts` to register `app.command("/<name>", <callback>)`.

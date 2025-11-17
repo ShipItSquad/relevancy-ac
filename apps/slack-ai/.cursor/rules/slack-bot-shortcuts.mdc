@@ -1,0 +1,44 @@
+---
+alwaysApply: false
+globs: server/listeners/shortcuts/**/*.ts
+---
+
+## Shortcuts rules
+
+- Only modify files within `server/listeners/shortcuts/`.
+- Keep the explicit registry pattern.
+
+### `index.ts` contract
+
+```ts
+import type { App } from "@slack/bolt";
+import <name>ShortcutCallback from "./<name>-shortcut";
+
+const register = (app: App) => {
+  app.shortcut("<callback_id>", <name>ShortcutCallback);
+};
+
+export default { register };
+```
+
+### Handler template
+
+```ts
+import type { AllMiddlewareArgs, SlackShortcutMiddlewareArgs } from "@slack/bolt";
+
+const <name>ShortcutCallback = async ({ shortcut, ack, client, logger }: AllMiddlewareArgs & SlackShortcutMiddlewareArgs) => {
+  try {
+    await ack();
+    // ... open views or perform immediate responses
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+export default <name>ShortcutCallback;
+```
+
+### Checklist
+
+1. Create `server/listeners/shortcuts/<name>-shortcut.ts` with default-exported callback.
+2. Update `server/listeners/shortcuts/index.ts` to register `app.shortcut("<callback_id>", <callback>)`.

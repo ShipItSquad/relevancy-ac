@@ -1,0 +1,43 @@
+globs: server/listeners/actions/**/*.ts
+alwaysApply: false
+---
+
+## Actions rules
+
+- Only modify files within `server/listeners/actions/`.
+- Keep the explicit registry pattern.
+
+### `index.ts` contract
+
+```ts
+import type { App } from "@slack/bolt";
+import <name>ActionCallback from "./<name>-action"; // update per action file
+
+const register = (app: App) => {
+  app.action("<action_id>", <name>ActionCallback);
+};
+
+export default { register };
+```
+
+### Handler template
+
+```ts
+import type { AllMiddlewareArgs, BlockAction, SlackActionMiddlewareArgs } from "@slack/bolt";
+
+const <name>ActionCallback = async ({ ack, client, body, logger }: AllMiddlewareArgs & SlackActionMiddlewareArgs<BlockAction>) => {
+  try {
+    await ack();
+    // ... use client to update/open views, etc.
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+export default <name>ActionCallback;
+```
+
+### Checklist
+
+1. Create `server/listeners/actions/<name>-action.ts` with default-exported callback.
+2. Update `server/listeners/actions/index.ts` to register `app.action("<action_id>", <callback>)`.

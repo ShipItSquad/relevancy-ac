@@ -1,0 +1,43 @@
+---
+alwaysApply: false
+globs: server/listeners/messages/**/*.ts
+---
+
+## Messages rules
+
+- Only modify files within `server/listeners/messages/`.
+- Keep the explicit registry pattern.
+
+### `index.ts` contract
+
+```ts
+import type { App } from "@slack/bolt";
+import <name>MessageCallback from "./<name>-message";
+
+const register = (app: App) => {
+  app.message(<string | RegExp>, <name>MessageCallback);
+};
+
+export default { register };
+```
+
+### Handler template
+
+```ts
+import type { AllMiddlewareArgs, SlackEventMiddlewareArgs } from "@slack/bolt";
+
+const <name>MessageCallback = async ({ message, say, client, logger }: AllMiddlewareArgs & SlackEventMiddlewareArgs<"message">) => {
+  try {
+    // ...
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+export default <name>MessageCallback;
+```
+
+### Checklist
+
+1. Create `server/listeners/messages/<name>-message.ts` with default-exported callback.
+2. Update `server/listeners/messages/index.ts` to register `app.message(<string|RegExp>, <callback>)`.

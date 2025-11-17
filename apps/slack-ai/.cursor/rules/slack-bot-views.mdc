@@ -1,0 +1,44 @@
+---
+alwaysApply: false
+globs: server/listeners/views/**/*.ts
+---
+
+## Views rules
+
+- Only modify files within `server/listeners/views/`.
+- Keep the explicit registry pattern.
+
+### `index.ts` contract
+
+```ts
+import type { App } from "@slack/bolt";
+import <name>ViewCallback from "./<name>-view";
+
+const register = (app: App) => {
+  app.view("<callback_id>", <name>ViewCallback);
+};
+
+export default { register };
+```
+
+### Handler template
+
+```ts
+import type { AllMiddlewareArgs, SlackViewMiddlewareArgs } from "@slack/bolt";
+
+const <name>ViewCallback = async ({ ack, view, body, client, logger }: AllMiddlewareArgs & SlackViewMiddlewareArgs) => {
+  await ack();
+  try {
+    // ...
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+export default <name>ViewCallback;
+```
+
+### Checklist
+
+1. Create `server/listeners/views/<name>-view.ts` with default-exported callback.
+2. Update `server/listeners/views/index.ts` to register `app.view("<callback_id>", <callback>)`.

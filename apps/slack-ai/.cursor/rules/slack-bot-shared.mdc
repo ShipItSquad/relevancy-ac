@@ -1,0 +1,32 @@
+---
+alwaysApply: false
+globs: server/lib/slack/**/*.ts
+---
+
+## Slack utilities rules
+
+- Only modify files within `server/lib/slack/`.
+- Utilities and tools provide reusable logic for handlers and must not register listeners directly.
+- Keep the explicit registry pattern: only category `index.ts` files in `server/listeners/**` perform registrations.
+
+### Module template
+
+```ts
+// Example Slack utility
+export interface ExampleInput {
+  // define parameters here
+}
+
+export function exampleHelper(input: ExampleInput) {
+  // ... shared logic ...
+}
+
+export default exampleHelper;
+```
+
+### Checklist
+
+1. Create `server/lib/slack/<name>.ts` exporting reusable logic (e.g., blocks, helpers).
+2. Import from handlers in `server/listeners/commands/`, `actions/`, `events/`, `messages/`, `shortcuts/`, or `views/` as needed.
+3. Do not register listeners or mutate app wiring from `server/lib/slack/`.
+

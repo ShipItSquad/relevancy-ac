@@ -1,0 +1,43 @@
+---
+alwaysApply: false
+globs: server/listeners/events/**/*.ts
+---
+
+## Events rules
+
+- Only modify files within `server/listeners/events/`.
+- Keep the explicit registry pattern.
+
+### `index.ts` contract
+
+```ts
+import type { App } from "@slack/bolt";
+import <name>EventCallback from "./<name>"; // e.g. app-home-opened -> from "./app-home-opened"
+
+const register = (app: App) => {
+  app.event("<event>", <name>EventCallback);
+};
+
+export default { register };
+```
+
+### Handler template
+
+```ts
+import type { AllMiddlewareArgs, SlackEventMiddlewareArgs } from "@slack/bolt";
+
+const <name>EventCallback = async ({ client, event, logger }: AllMiddlewareArgs & SlackEventMiddlewareArgs<"<event>">) => {
+  try {
+    // ...
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+export default <name>EventCallback;
+```
+
+### Checklist
+
+1. Create `server/listeners/events/<name>.ts` with default-exported callback.
+2. Update `server/listeners/events/index.ts` to register `app.event("<event>", <callback>)`.
