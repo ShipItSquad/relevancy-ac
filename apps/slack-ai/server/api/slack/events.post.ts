@@ -9,26 +9,23 @@ export default defineEventHandler(async (event) => {
 	// In v3 of Nitro, we will be able to use the request object directly
 	// biome-ignore lint: Provided by Nitro runtime globals
 	const request = toWebRequest(event);
-	// Handle Slack URL verification explicitly to return the challenge immediately
+	// Simple URL verification handling: try JSON body first, otherwise fall through
 	try {
-		const cloned = request.clone();
-		const contentType = cloned.headers.get("content-type") || "";
-		if (contentType.includes("application/json")) {
-			const body = (await cloned.json()) as
-				| { type?: string; challenge?: string }
-				| undefined;
-			if (
-				body?.type === "url_verification" &&
-				typeof body.challenge === "string"
-			) {
-				return new Response(JSON.stringify({ challenge: body.challenge }), {
-					status: 200,
-					headers: { "content-type": "application/json" },
-				});
-			}
+		const body = (await request.clone().json()) as {
+			type?: string;
+			challenge?: string;
+		};
+		if (
+			body?.type === "url_verification" &&
+			typeof body.challenge === "string"
+		) {
+			return new Response(JSON.stringify({ challenge: body.challenge }), {
+				status: 200,
+				headers: { "content-type": "application/json" },
+			});
 		}
 	} catch {
-		// fall through to the default handler
+		// Not JSON or no body; let Bolt handle the rest
 	}
 	return await handler(request);
 });
