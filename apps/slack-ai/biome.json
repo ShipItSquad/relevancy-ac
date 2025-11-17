@@ -58,6 +58,21 @@
           }
         }
       }
+    },
+    {
+      "includes": [
+        "server/api/**/*.{ts,js}",
+        "server/routes/**/*.{ts,js}"
+      ],
+      "linter": {
+        "enabled": true,
+        "rules": {
+          "recommended": true,
+          "suspicious": {
+            "noUndeclaredVariables": "off"
+          }
+        }
+      }
     }
   ]
 }
