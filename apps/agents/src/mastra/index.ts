@@ -43,4 +43,7 @@ export const mastra = new Mastra({
 			secret: process.env.MASTRA_JWT_SECRET,
 		}),
 	},
+	bundler: {
+		externals: ["@notionhq/notion-mcp-server"],
+	},
 });
