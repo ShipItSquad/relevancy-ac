@@ -6,7 +6,8 @@
     "NOTION_API_KEY",
     "NOTION_PAGE_ID",
     "NOTION_VERSION",
-    "MASTRA_JWT_SECRET"
+    "MASTRA_JWT_SECRET",
+    "EXA_API_KEY"
   ],
   "tasks": {
     "build": {

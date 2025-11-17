@@ -8,9 +8,9 @@ import { config } from "dotenv";
 
 config();
 
-const require = createRequire(import.meta.url);
+const nodeRequire = createRequire(import.meta.url);
 const notionMcpCli = path.join(
-	path.dirname(require.resolve("@notionhq/notion-mcp-server/package.json")),
+	path.dirname(nodeRequire.resolve("@notionhq/notion-mcp-server/package.json")),
 	"bin/cli.mjs",
 );
 
