@@ -8,8 +8,7 @@
     "dev": "mastra dev",
     "build": "mastra build",
     "start": "mastra start",
-    "vercel:sync-output": "node ./scripts/sync-vercel-output.mjs",
-    "vercel:build": "bun run build && bun run vercel:sync-output"
+    "vercel:build": "bun run build"
   },
   "keywords": [],
   "author": "",

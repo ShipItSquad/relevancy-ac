@@ -5,8 +5,17 @@ import { Memory } from "@mastra/memory";
 import { config } from "dotenv";
 
 config();
-const NOTION_API_KEY = process.env.NOTION_API_KEY!;
-const NOTION_VERSION = process.env.NOTION_VERSION!;
+function requireEnv(name: string): string {
+	const value = process.env[name];
+	if (!value) {
+		throw new Error(`Missing required environment variable: ${name}`);
+	}
+	return value;
+}
+
+const NOTION_API_KEY = requireEnv("NOTION_API_KEY");
+const NOTION_VERSION = requireEnv("NOTION_VERSION");
+console.log(NOTION_API_KEY, NOTION_VERSION);
 const OPENAPI_MCP_HEADERS = `{"Authorization": "Bearer ${NOTION_API_KEY}", "Notion-Version": "${NOTION_VERSION}" }`;
 // Initialize MCP Client to connect to Notion MCP server
 const notionMcp = new MCPClient({
