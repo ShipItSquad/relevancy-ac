@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: agents
+    env: docker
+    plan: free
+    autoDeploy: true
+    rootDir: apps/agents
+    dockerfilePath: Dockerfile
+    buildCommand: ""
+    startCommand: ""
+    envVars:
+      - key: PORT
+        value: "8080"
