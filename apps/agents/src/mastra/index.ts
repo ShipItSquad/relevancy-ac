@@ -1,6 +1,5 @@
 import { MastraJwtAuth } from "@mastra/auth";
 import { Mastra } from "@mastra/core/mastra";
-import { VercelDeployer } from "@mastra/deployer-vercel";
 import { LibSQLStore } from "@mastra/libsql";
 import { PinoLogger } from "@mastra/loggers";
 import { notionAgent } from "./agents/notion-agent";
@@ -34,10 +33,7 @@ export const mastra = new Mastra({
 		// Enables DefaultExporter and CloudExporter for AI tracing
 		default: { enabled: true },
 	},
-	deployer: new VercelDeployer({
-		maxDuration: 299,
-		memory: 1536,
-	}),
+
 	server: {
 		experimental_auth: new MastraJwtAuth({
 			secret: process.env.MASTRA_JWT_SECRET,
@@ -46,6 +42,7 @@ export const mastra = new Mastra({
 	bundler: {
 		externals: [
 			"@libsql/linux-x64-gnu", // + any other libsql targets you might need
+			"@mastra/auth",
 		],
 	},
 });

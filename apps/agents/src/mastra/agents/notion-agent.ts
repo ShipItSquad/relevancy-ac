@@ -5,32 +5,36 @@ import { Memory } from "@mastra/memory";
 import { config } from "dotenv";
 
 config();
-function requireEnv(name: string): string {
+
+function getEnvOrNull(name: string): string | null {
 	const value = process.env[name];
-	if (!value) {
-		throw new Error(`Missing required environment variable: ${name}`);
-	}
-	return value;
+	return value && value.length > 0 ? value : null;
 }
 
-const NOTION_MCP_URL = new URL(requireEnv("NOTION_MCP_URL"));
-const NOTION_MCP_AUTH_TOKEN = requireEnv("NOTION_MCP_AUTH_TOKEN");
-// Initialize MCP Client to connect to Notion MCP server
-const notionMcp = new MCPClient({
-	id: "notion-mcp-client",
-	servers: {
-		notion: {
-			url: NOTION_MCP_URL,
-			requestInit: {
-				headers: {
-					Authorization: `Bearer ${NOTION_MCP_AUTH_TOKEN}`,
+export async function createNotionAgentIfConfigured(): Promise<Agent | null> {
+	const notionApiKey = getEnvOrNull("NOTION_API_KEY");
+	const notionVersion = getEnvOrNull("NOTION_VERSION");
+
+	if (!(notionApiKey && notionVersion)) {
+		return null;
+	}
+
+	const OPENAPI_MCP_HEADERS = `{"Authorization": "Bearer ${notionApiKey}", "Notion-Version": "${notionVersion}" }`;
+
+	// Initialize MCP Client to connect to Notion MCP server
+	const notionMcp = new MCPClient({
+		id: "notion-mcp-client",
+		servers: {
+			notion: {
+				command: "npx",
+				args: ["-y", "@notionhq/notion-mcp-server"],
+				env: {
+					OPENAPI_MCP_HEADERS,
 				},
 			},
 		},
-	},
-});
+	});
 
-export async function createNotionAgent() {
 	const notionTools = await notionMcp.getTools();
 	return new Agent({
 		name: "Notion Agent",
@@ -60,5 +64,4 @@ Use the available tools to interact with Notion.
 		}),
 	});
 }
-
-export const notionAgent = await createNotionAgent();
+export const notionAgent = await createNotionAgentIfConfigured();

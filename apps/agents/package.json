@@ -27,13 +27,13 @@
     "@mastra/mcp": "^0.14.2",
     "@mastra/memory": "^0.15.11",
     "dotenv": "^17.2.3",
-    "install": "^0.13.0",
-    "zod": "^4.1.12"
-  },
-  "devDependencies": {
-    "@types/node": "^24.10.1",
-    "mastra": "^0.18.0",
-    "typescript": "^5.9.3"
-  },
+		"install": "^0.13.0",
+		"zod": "^4.1.12",
+		"mastra": "^0.18.0"
+	},
+	"devDependencies": {
+		"@types/node": "^24.10.1",
+		"typescript": "^5.9.3"
+	},
   "packageManager": "bun@1.1.34"
 }
