@@ -44,6 +44,9 @@ export const mastra = new Mastra({
 		}),
 	},
 	bundler: {
-		externals: ["@notionhq/notion-mcp-server"],
+		externals: [
+			"@notionhq/notion-mcp-server",
+			"@libsql/linux-x64-gnu", // + any other libsql targets you might need
+		],
 	},
 });
