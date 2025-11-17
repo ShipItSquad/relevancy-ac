@@ -12,7 +12,8 @@
     "prepare": "nitro prepare",
     "preview": "node .output/server/index.mjs",
     "lint": "biome check .",
-    "lint:fix": "biome check . --write"
+    "lint:fix": "biome check . --write",
+    "manifest:update": "tsx scripts/manifest-base-url.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "^2.0.64",
